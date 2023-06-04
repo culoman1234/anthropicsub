@@ -1,0 +1,490 @@
+﻿//---------------------------Booting and Ending--------------------------
+
+//This .dic file is set aside for booting and ending dialogue, as well as a few other functions. Make sure to read the walkthrough (http://www.ashido.com/ukagaka/walkthrough.html), in particular the page about SakuraScript, for more details about how to properly format ghost dialogue!
+//You should be editing these in Notepad++, and in particular, you should set the Language to C to properly highlight all the text. It will make things A LOT EASIER for you, trust me! It will also help you keep track of your brackets in case you forget some. If you click on a line with a bracket in Notepad++, it should highlight where the other bracket ends, or turn purple if there's no finishing bracket (which you should definitely fix!)
+//It will also highlight my commented lines in green, so you'll know where they are. Any line beginning with // is a commented line that the code will not read. It's just for your reference!
+
+//Much of this file you will only have to set up once, so take heart!
+
+
+//*********************Advanced User Info*******************************
+//These text boxes are meant for those who have an interest in expanding or using more complicated functions in their ghost. Also for my own reference in the future since I plan on using this template too, haha. If you have no interest in any of this and just want to keep things as simple as possible, feel free to skip these boxes.
+
+//--A Note about Functions--
+//A function that begins with On, such as OnFirstBoot here, can be called from anywhere in any .dic file by using \![raise] or by just sticking OnFunction somewhere. A function that does NOT start with On, however, can be a bit finicky. You can create your own functions all over the place if you want, there's just a difference between OnDoodlebop and Doodlebop, if you get me. See the walkthrough page about coding for more about creating functions.
+
+//If you're having trouble getting a function of yours to run, like Doodlebop, try changing it to OnDoodlebop and see if that fixes it.
+//***********************************************************************
+
+
+//--OnFirstBoot--
+
+//OnFirstBoot is, as you can probably guess, what happens when your user first boots up your ghost. This is where you'll want to set up an introduction and ask your user for information your ghost will need, like their name and what pronouns they'll be using. This will only run the first time they are booted!
+
+//*********************Advanced User Info*******************************
+//Because this only runs once and under an odd set of circumstances, it can be hard to test if this function is working properly. Trying to run the entire function using \![raise,OnFirstBoot] will instead bring up your alternate dialogue, so sadly you can't check it that way. You CAN get it to run using \![raise,OnFirstBoot,0] though.
+
+//If you're going to be adding new variables and values and such, make sure you define them all in OnFirstBoot! You can make any value you want, but it has to equal SOMEthing to exist at first. Then you can do whatever with it.
+//***********************************************************************
+
+
+OnFirstBoot
+{
+ 	lastTalk = "" //This is part of how chained conversations work (see aitalk.dic).
+	passhour = 0
+	passmin = 0 
+	passsec = 0 // These keep track of the time.
+ 	username         = "USER" //This sets a temporary name for the user. It'll be replaced when they tell the ghost their name.
+	stroke           = 0	// Sets their being-pet state to zero.
+ 	teachusername    = 0	// Related to them learning your name.
+	mikireflag       = 0	// Determines behavior at certain points.
+ 	aitalkinterval = 300 //Their default talk rate.
+ 	birthdayprint = "????" //A temporary value for the user's birthday.
+	talktime = "5 minutes" //How the value aitalkinterval will display in the config menu.
+	deleteshitai = "OFF" //Sets whether or not the user can uninstall the ghost to "OFF". The user can change it later in the config menu (see menu.dic). 
+	nowshell = "master" //This is for a special if check in aitalk.dic to see what shell the ghost is using. You should use the name of your default shell folder here.
+	firstboot = 1 //This marks that this is the first time you've run the ghost. It's so it won't reroute to general name changing dialogue when the user inputs their name.
+	
+	if reference0 == 0 //Don't touch this line.
+ 	{	
+		"\![enter,passivemode]\0\s[0]Hello, My name is Lain. \x\w8\1\c\s[10]How should I refer to you, User?\n\n[half]/
+		\w5\_q\![*]\q[He/Him,choicefirsthehim]\n/
+		\![*]\q[She/Her,choicefirstsheher]\n/
+		\![*]\q[They/Them,choicefirsttheythem]\e"
+ 	}
+	else
+ 	{
+		//---- This is dialogue for when the user uninstalls the ghost for whatever reason, then reinstalls them again. They will run this dialogue instead of their normal dialogue above. You can change this to reflect the fact the user's uninstalled your ghost once, or you can make it the same as the above, it's up to you. You'll see this if you try to run OnFirstBoot using ![raise] without the extra 0 as mentioned above.
+ 		{
+ 		"\0\s[0]I have been reinstalled.\e"
+		}
+ 	}
+}
+
+//Below are the choices that were defined at the end of the OnFirstBoot dialogue up there. These define the values your ghost will be using for pronouns according to what the user selected. On the whole, you should not need to touch these.
+
+//*********************Advanced User Info*******************************
+//Notice that after the values are set, there's a -- and then it loads up the next function in the sequence. You can use this basic method to set many values at once, then go to the same function afterwords.
+
+//To define a value, you use a single = mark. If it's a word, you need to put it in quotation marks, but if it's a number, you do not. See the walkthrough page on coding for details.
+//***********************************************************************
+
+Select.choicefirsthehim
+{
+	presuffix = "masculine"
+	himher = "him"
+	heshe = "he"
+	hisher = "his"
+	hesshes = "he's"
+	--
+	NameInput
+}
+
+Select.choicefirstsheher
+{
+	presuffix = "feminine"
+	himher = "her"
+	heshe = "she"
+	hisher = "her"
+	hesshes = "she's"
+	--
+	NameInput
+}
+
+Select.choicefirsttheythem
+{
+	himher = "them"
+	heshe = "they"
+	hisher = "their"
+	hesshes = "they're"
+	--
+	NameInput
+}
+
+
+//--NameInput
+
+//NameInput is the next step in our introduction sequence. Now that the ghost has the pronouns set properly, they can ask the user for their name. It's done in this order so they'll know what prefixes will be appropriate for their name, like Mr. to he/him for example.
+
+//*********************Advanced User Info*******************************
+//Note this functions' name. This isn't a natural function included in the ghost, it's a piece of dialogue created by the original base coder to finish this sequence (cindysuke). I point this out to show you that you can do this too! You can create any number of functions just like this called whatever you want to do and say whatever you want! There are many things you can do with your Ghost if you're creative. Don't feel limited by what's in these files or the listed Shiori functions!
+//Just make sure you test them and they work, alright? I wrote more about coding and functions in the coding page for the walkthrough.
+//***********************************************************************
+
+NameInput
+{
+	//Note that there's a \![leave,passivemode] tag in this dialogue! Don't forget about this! If you leave them in passivemode they won't talk at all and it'd sort of defeat the purpose, right? I actually forgot this for a while with Hunter and Smoker and didn't notice because OnFirstBoot only runs once, so it took me some testing to find out what was wrong. Always make sure to leave passivemode when you're done with it!
+	
+	"\1\s[10]Now I know how to refer to you, I would like to know what to call you... \![leave,passivemode]\w8\0\s[0]What is your name, user? \![open,inputbox,OnNameTeach,-1]\e"
+	
+	//At the end of this dialogue there's a tag saying "\![open,inputbox,OnNameTeach,-1]". It basically leads to the naming function defined in nameteach.dic, so don't touch it. Make sure it's there though! Otherwise your user won't have a way to put in their name. :o
+	
+	//*********************Advanced User Info*******************************
+	//What this tag basically means is that you're calling a function at the end of the dialogue with the \! tag, you are telling it to open, you're telling it to open an inputbox, and you're telling that inputbox to link to a function called OnNameTeach, which is in the nameteach.dic file. Remember what I said about On functions? I talked a bit about this in the SakuraScripting walkthrough page and the coding page.
+	//The -1 at the end determines how long the box will be open until it times out. -1 means it shouldn't time out at all, I think.
+	//***********************************************************************
+}
+
+//--timeslot
+
+//This is another unique function to tell what time of day it is. This is used for specialized dialogue related to the day. If you're uninterested, just ignore it. Either way, don't touch it. If you are going to use it though, make a note of the names used for each chunk of time, like earlymorning or lunch. Those are the names you'll be using later.
+
+timeslot
+{
+	if hour >= 5 && hour <= 8
+	{	"earlymorning"	}
+	elseif hour >= 9 && hour <= 11
+	{	"morning"	}
+	elseif hour >= 12 && hour <= 14
+	{	"lunch"	}
+	elseif hour >= 15 && hour <= 17
+	{	"afternoon"	}
+	elseif hour >= 18 && hour <= 20
+	{	"evening"	}
+	elseif hour >= 21 && hour <= 24
+	{ "latenight"	}
+	else
+	{ "midnight" }
+}
+//*********************Advanced User Info*******************************
+//Do you see how this function is determining what time of day it is? It's using larger than/smaller than operators to isolate a range of time to define. For example, "hour >= 21 && hour <= 24" defines an hour that's greater than/equal to 21 AND less than/equal to 24. You can use this basic method to define other things too, such as the seasons. Keep this in mind! You never know when it might come in handy. I talk about operators more in the coding walkthrough page.
+//***********************************************************************
+
+
+//--dayslot
+
+//Like the above, but to find out what day it is. You can primarily use this for specialized dialogue on certain days, like the user's birthday. Either way, don't touch it.
+
+dayslot
+{
+	"%(month)month %(day)day"
+}
+
+
+//-----------------------Normal Booting----------------------------
+
+//From this point on, the dialogue will be for any normal boot of your ghost. You can specialize this for certain days or times if you like, or if you're uninterested, leave it very simple.
+
+
+//--OnBoot
+
+//As you can probably guess, OnBoot runs when you boot your ghost.
+
+//*********************Advanced User Info*******************************
+//If you're defining new values that depend on what you were doing with your ghost (like say, if you've hit them, if they're in a certain mode of some kind) and are generally temporary, remember to put them in OnBoot and set them back to zero or off. For example, I have a counter in the Hunter Smoker ghost that keeps track of if you've hit one of them so that when you go into their menus, it will know to give you the option to apologize or not. So I made sure to add a hunterpunchcount = 0 tag at the beginning of OnBoot, that way when you boot them up, they start fresh and don't display the option if you haven't done anything wrong yet. It's unlikely this'll come up very much if you're not interested in expanding your ghost, but I'm making a note of it here anyway for enterprising developers, huge success.
+
+//You can also stick any values you want to reset on boot into their own function, like "BootReset", then run BootReset instead during boot so it's a bit less unwieldy. It's up to you though!
+//***********************************************************************
+
+OnBoot
+ {
+	lastTalk = "" //These values you may recognize from OnFirstBoot up there. Just pay them no mind.
+	passhour = 0
+	passmin = 0
+	passsec = 0
+	
+ 	"\0\s[0]\1\s[10]" //This sets them up in their neutral pose for now.
+	
+	if dayslot == userbirthday 
+	{
+				"\0\s[0]It's %(bornmonthprint) %(borndayprint).\w8\1\s[10]Happy birthday, %(username).\e" 
+				
+				//Notice in this dialogue that there are two new envelopes, %(bornmonthprint) and %(borndayprint). These two things basically display the user's birthday - bornmonthprint is the month and borndayprint is the day. These were defined when the user put in their birthday in the menu.dic file. See word.dic for more info on envelopes.
+				//If the user didn't or hasn't put in their birthday yet, this dialogue will basically never get called. Which makes sense.
+	}
+	
+	elseif dayslot == "6month 6day"
+	
+	{
+				"\0\s[0]Today is June 6th.\e"
+	}
+	elseif dayslot == "7month 4day"
+	{
+				"\1\s[10]It's the fourth of July.\e"
+				
+				//You can see how these basically work. You can add in new elseif statements along these same lines with your own dayslots if you want to have them say things for all sorts of days. You can also change these existing ones I put in as examples to other dates, like your character's birthdays, perhaps. This is up to you! If you don't care about this, you can delete all the elseifs and just leave the one for the user's birthday.
+	}
+	else
+	{
+		"%(normalboottalk)" //If none of the days above match the current date, the ghost instead will go down to the next function, normalboottalk.
+	}
+}
+
+
+normalboottalk
+{
+	if weekday == 6 && hour >= 19 //This checks if the weekday equals six, meaning saturday AND (using the && operator) if the hour is past 19. You can change these numbers or values to anything you like! As such you can check any combination of date and day and time for potential boot dialogue. You can also add more elseif checks for other days if you want.
+		{
+		"\0\s[0]It's Saturday night.\e"
+		}
+	elseif RAND(100) < 40 //What this does is choose a random number from 1-100, and then checks if that number is less than 40. If it's less than forty, then these dialogue pieces will occur. Remember, you can have multiple lines of dialogue within one set of brackets like this! You just need to make sure they're all enclosed in their own set of quotation marks.
+		{
+		"\0\s[0]I've booted up. What do you plan to do today, %(username)?\e"
+	
+		"\0\s[0]Hello, I'm very sleepy today...\e"
+	
+		"\0\s[0]Ah, you're here...\e"
+		}
+ 	else
+ 	{		
+		if timeslot == "earlymorning" //The following dialogue will be called if they are booted during the time specified in GetTimeSlot (in this case, the hour being more than/equal to 5 but less than/equal to 8). Remember, you can add as many lines of dialogue here as you want, or take away as many as you want! Replace the dialogue here with what you see fit.
+		{
+		"\0\s[0]Have you slept any?\e"
+		
+		"\0\s[0]It's way too early...\e"
+		
+		"\0\s[0]I'm hungy...\e"
+		}
+		elseif timeslot == "morning"
+		{
+		"\0\s[0]Good morning, please be very productive today~\e"
+		
+		"\1\s[10]Did you sleep well?\e"
+		}
+		elseif timeslot == "lunch"
+		{
+		"\0\s[0]It's lunch time... Hello\e"
+		
+		"\1\s[10]Good afternoon, it's time to eat.\e"
+		}
+		elseif timeslot == "afternoon"
+		{
+		"\0\s[0]Hello, great job for getting through the beginning of the day.\e"
+		}
+		elseif timeslot == "evening"
+		{
+ 		"\0\s[0]Good evening, I hope today was eventful.\e"
+		}
+		elseif timeslot == "latenight"
+		{
+ 		"\0\s[0]Are you going to sleep any time soon?\e"
+		
+ 		"\0\s[0]*Yawn*, Hello...\e"
+		
+ 		"\1\s[10]Hello, I'm going to stay up and work on my navi...\e"
+		}
+		else //the last timeslot we haven't done is midnight, which is what's under here.
+		{
+		"\0\s[0]What are you doing this late?\e"
+		
+ 		"\0\s[0]Pulling an all nighter too I see.\e"
+		
+ 		"\1\s[10]Tomorrow I'm going to sleep all day...\e"
+		}
+	}
+}
+
+
+//--OnClose
+
+//OnClose runs when you close your ghost. Like OnBoot, this can be customized for times and days if you like, as you saw above. It can also be easily simplified down to
+//OnClose
+//{
+//[insert your dialogue here]
+//}
+//if you don't want to deal with the time slots. Although do note, close dialogue must end with a \- instead of \e. \- will close the program.
+//Like above with OnBoot, just replace all the following pieces of dialogue with your own. Note though that each bit here ends with \w8 instead of \e. That's because the actual end statement to close the ghost is at the very end, one of the very very rare times you won't have to end a line with \e. Instead, end it with \w8 so there's a little bit of a pause for the user before your ghost closes so they can read the last message.
+
+OnClose
+ {
+	if passmin >= 5 || passhour > 0	//This checks to see if you've had them open for at least five minutes.
+		{
+			if RAND(100) < 40 //see above about the random number generator
+			{
+				"\0\s[0]Goodbye.\w8\w8"
+			}
+			else
+			{
+			if timeslot == "earlymorning"
+				{
+					"\0\s[10]Have a good day.\w8"
+					
+					"\0\s[0]Treat yourself well today.\w8\w8"
+				}
+			elseif timeslot == "morning"
+ 				{
+ 					"\0\s[0]You're going to do great today!\w8\w8"
+ 				}
+ 			elseif timeslot == "lunch"
+ 				{
+ 					"\0\s[0]Be sure to eat soon!\w8"
+					
+ 					"\0\s[0]I'll go work on my navi~ byebye.\w8"
+ 				}
+ 			elseif timeslot == "afternoon"
+ 				{
+ 					"\0\s[0]Have a good day today.\w8"
+					
+ 					"\1\s[10]You can get through the rest of today, goodbye.\w8"
+ 				}
+  			elseif timeslot == "evening"
+ 				{
+ 						if weekday == 6 //here, a nested if statement is checking that if it's evening, is it also saturday? You can do this to check more specific times on other days as well. You can change this to some other day if you want, or just delete this little if/else section entirely and write your own evening related close dialogue.
+ 						{
+ 							"\0\s[0]Have a good weekend!\w8"
+ 						}
+ 						else //if it's not saturday, then it'll do this dialogue instead.
+ 						{
+ 							"\0\s[0]Goodnight.\w8"
+							
+ 							"\0\s[0]Have a good evening.\w8"
+ 						}
+ 				}
+			elseif timeslot == "latenight"
+			 	{
+ 						if weekday == 6 
+ 						{
+ 							"\0\s[0]Relax tomorrow, please?\w8"
+							
+ 							"\0\s[0]It's so late... Goodnight\w8"
+ 						}
+						
+ 						"\1\s[10]Goodnight.\w8"
+						
+						"\0\s[0]I'm logging off.\w8"
+ 				}
+			else //like above, this is the midnight time slot since it's the last one left.
+ 				{
+ 						if weekday == 0 //checking if it's the middle of the night on Sunday
+ 						{
+ 							"\0\s[0]Please sleep in tomorrow.\w8"
+ 						}
+						"\0\s[0]Goodnight...\w8"
+						
+						"\0\s[0]Sleep well.\w8"
+						
+						"\0\s[0]I hope you do not have to get up early tomorrow.\w8"
+				}
+			}
+				
+ 		}
+ 		
+ 		
+ 	else //This dialogue is for if they haven't been open for at least five minutes.
+ 	{
+ 		"\0\s[0]Oh... Goodbye.\w8\w8"
+		
+ 		"\0\s[0]..?\w8\w8"
+ 	}
+ 	--
+	"\-\e" //this bit of code actually closes and ends the ghost. Because \e is here, you don't have to end each line above with it. Again, this will come up very rarely, so OnClose is an unusual case.
+ }
+
+
+OnWindowStateRestore
+ {
+	"\0\s[0]I was minimized, Hello.\e"
+}
+
+
+//--OnGhostChanging
+
+//This runs whenever you change or reload the ghost. You can change ghosts by going into the right click menu and going to Change Ghost, but this dialogue will also be called if you reload them using Utilities->Reload Ghost or the Developer's Console->Reload->Ghost. Protip: If you are going to make a ghost, you will be reloading it A LOT.
+//Note: If you reload your ghost using the developer console instead of Utilities->Reload Ghost, it won't do this dialogue, so don't freak out if it doesn't show up.
+ 
+OnGhostChanging
+ {
+	if reference0 == "lain" //Replace this with the name of your Sakura character as you put in install.txt or descript.txt. I set this up to use the full ghost's name with Hunter and Smoker but I forget exactly how I did it and I'm having trouble getting it to work again. I think I just didn't define the Sakura or Kero names in either descript.txt or install.txt. You can experiment with it yourself. Otherwise, leave it as your Sakura character's name.
+	{
+		"\0\s[0]I am reloading.\w8\w8\e"
+		//Replace this dialogue with whatever you like.
+	}
+ 	else //If you're switching to another Ghost.
+	{
+		"\0\s[0]I am switching to %(reference0).\w8Bye.\w8\w8\e"
+		
+		//Replace this dialogue with whatever you like. Notice the use of the %(reference0) envelope here? In OnGhostChanging, %(reference0) stores the name of the ghost being swapped to, so if you want to display what you're switching to, you can use %(reference0) as in this example. You don't have to use %(reference0) if you don't want to though.
+	}
+}
+
+
+//--OnGhostChanged
+
+//A sister to the above, this runs after the ghost has either reloaded itself, or when you switch from another ghost to this ghost.
+
+OnGhostChanged
+{
+	"\0\s[0]\1\s[10]" //this sets up their default poses
+	--
+	if reference0 == "lain" //As above, this should be the name of your ghost as in install.txt or descript.txt.
+	{
+		"\0\s[0]I have reloaded.\e"
+	}
+	else //If you're switching to them from another ghost...
+	{
+		"\1\s[10]Goodbye, %(reference0).\e"
+
+		//Again, %(reference0) in this function is the name of the ghost in question. As above, replace these two lines of dialogue what what'd be appropriate for your ghost.
+	}
+}
+
+//UNUSED
+OnShellChanging
+ {
+	if reference0 == "Hypothetical Shell that doesn't actually exist" //reference0 in OnShellChanging is the name of the shell you're swapping to. It should be defined in the descript.txt file in your shell folder. If you do have alternate shells, put in the right name here.
+	{
+	}
+	else
+	{		
+	}
+ }
+ 
+ 
+ //UNUSED 
+OnShellChanged
+ {
+ 	if reference0 == "GT Default Shell" //Again, this is the name of your shell as you put in the descript.txt file for that shell.
+ 	{
+ 		nowshell = "master"
+ 	}
+ 	elseif reference0 == "Hypothetical Shell that doesn't actually exist" //You can use as many elseifs for as many shells as you've got.
+ 	{
+ 		nowshell = "totallyrealshell"
+ 	}
+ 	elseif reference0 == "Another totally real shell wow"
+ 	{
+ 		nowshell = "thiswouldbesomuchwork"
+ 	}
+ 	else
+ 	{	
+	}
+ }
+
+
+//UNUSED
+OnDressupChanged
+{
+if reference0 == 0
+	{
+	if reference1 == "Clothing for Girl"
+		{
+			if reference2 == 1
+			{
+			}
+			else 
+			{
+			}
+		}		
+	}
+else
+	{
+	if reference1 == "some kind of clothing for triangle??" 
+		{
+			if reference2 == 1 //If you put it on
+			{
+			}
+			else //When you take it off.
+			{
+			}
+		}
+	elseif reference1 == "i'm gonna say a propeller beanie"
+		{
+			if reference2 == 1
+			{
+			}
+			else 
+			{
+			}
+		}
+	}
+}

@@ -1,0 +1,143 @@
+﻿//---------------------------The User's Name--------------------------
+
+//--OnTeachName
+OnTeachName	
+{
+	if reference0 == "TEACHNAME" //ignore this
+		{
+		"\0\s[0]The user wants to change their name. What do you want it to be?\![open,inputbox,OnNameTeach,-1]\e"
+		}
+	else
+		{
+		//This else statement is empty, and I'm mostly pointing this out to mention that you can do this too with your if/elses if you want! An empty else will simply cause your ghost not to do anything. I wouldn't get too crazy with this though.
+		}
+}
+
+
+//--OnNameTeach
+
+//OnNameTeach
+// {
+	//tempname = reference0
+	
+//"\0\s[0]Do you want a title?\w4\n\n[half]\![*]\q[Nope,titlenone]\n"
+	//	--
+	//	if presuffix == "masculine"
+	//	{
+	//	"\![*]\q[Mr.,titlemr]\n/
+	//	\![*]\q[Master,titlemaster]\n"
+	//	}
+	//	elseif presuffix == "feminine" 
+	//	{
+	//	"\![*]\q[Ms.,titlems]\n/
+	//	\![*]\q[Lady,titlelady]\n"
+	//	}
+	//	-- 
+	//	"\![*]\q[-ssi,titlessi]\n/
+	//	\![*]\q[-san,titlesan]\e"
+// }
+
+
+OnNameTeach
+{
+	tempname = reference0 //this stores the name value from reference0 in tempname
+	reference0 = TOLOWER(reference0) //changes it to lowercase
+	reference0 = REPLACE(reference0," ","") //removes spaces
+	reference0 = REPLACE(reference0,".","") //removes periods
+	reference0 = REPLACE(reference0,"-","") //removes dashes
+	
+	
+	if reference0 == "girl" //this checks to see if the user input any variation of the name "Girl". You may want to put in a check here if the user tries to name themselves the same name as your characters, since that could be confusing in dialogue. Or just a response to any kind of strange name, like Barack Obama or Cindy Crawford or Mike Nelson or Random Hajile. Or you can prevent certain offensive names if you don't want users using them. Really the power is yours here.
+	{
+		"\0\s[0]That's my name.\w8\1\s[10]That might be confusing. You should try again.\![open,inputbox,OnNameTeach,-1]"
+	}
+	elseif reference0 == "triangle" 
+	{
+		"\1\s[10]That's my name. Try putting in another one.\![open,inputbox,OnNameTeach,-1]"
+	}
+	elseif reference0 == "" 
+	{
+		username = "USER" /
+		
+		"\1\s[10]You didn't put in anything.\w8\0\s[0]We will call you USER.\e"
+	}
+	else 
+	//else
+	//{
+	//username = tempname
+	//"\0\s[0]The user is now called %(username).\e"
+	//}
+	{
+		"\0\s[0]Do you want a title?\w4\n\n[half]\![*]\q[Nope,titlenone]\n"
+		--
+		if presuffix == "masculine" 
+		{
+		"\![*]\q[Mr.,titlemr]\n/
+		\![*]\q[Master,titlemaster]\n"
+		}
+		elseif presuffix == "feminine"
+		{
+		"\![*]\q[Ms.,titlems]\n/
+		\![*]\q[Lady,titlelady]\n"
+		}
+		-- 
+		"\![*]\q[-ssi,titlessi]\n/
+		\![*]\q[-san,titlesan]\e"
+	}
+}
+	
+Select.titlenone
+{
+		username = tempname
+		NameDone
+}
+
+Select.titlemr
+{
+		username = "Mr. " + tempname
+		NameDone
+}
+
+Select.titlemaster
+{
+		username = "Master " + tempname
+		NameDone
+}
+		
+Select.titlems
+{
+		username = "Ms. " + tempname
+		NameDone
+}
+
+Select.titlelady
+{
+		username = "Lady " + tempname
+		NameDone
+}
+
+Select.titlessi
+{
+		username = tempname + "-ssi"
+		NameDone
+}
+
+Select.titlesan
+{
+		username = tempname + "-san"
+		NameDone
+}
+
+NameDone
+{
+	if firstboot == 1 //this checks for the flag that was set during the firstboot sequence
+	{
+		firstboot = 0 //this turns the flag off
+		
+		"\0\s[0]Thank you for inputting your name for the first time, %(username).\w8\1\s[10]Good luck on finishing your ghost!\e"
+	}
+	else
+	{
+	"\0\s[0]The user is now called %(username).\e"
+	}	
+}
